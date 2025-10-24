@@ -1,8 +1,8 @@
 import asyncio
 
-from services.scraper_core import get_logger, save_products
-from services.scrapers.farfetch.config import FarfetchConfig
-from services.scrapers.farfetch.scraper import FarfetchScraper
+from apps.scraper.scraper_core import get_logger, save_products
+from apps.scraper.scrapers.farfetch.config import FarfetchConfig
+from apps.scraper.scrapers.farfetch.scraper import FarfetchScraper
 
 logger = get_logger(__name__)
 

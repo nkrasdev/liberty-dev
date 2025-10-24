@@ -2,7 +2,7 @@ from typing import Dict, List
 
 from bs4 import BeautifulSoup
 
-from services.scraper_core.logger import get_logger
+from apps.scraper.scraper_core.logger import get_logger
 
 logger = get_logger(__name__)
 

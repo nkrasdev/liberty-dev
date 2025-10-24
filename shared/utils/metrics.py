@@ -56,9 +56,9 @@ def get_metrics() -> str:
 def get_metrics_dict() -> Dict[str, Any]:
     """Get metrics as a dictionary for debugging."""
     return {
-        'request_count': REQUEST_COUNT._value.sum(),
-        'request_duration': REQUEST_DURATION._sum.sum(),
-        'product_operations': PRODUCT_OPERATIONS._value.sum(),
-        'scraper_operations': SCRAPER_OPERATIONS._value.sum(),
-        'active_connections': ACTIVE_CONNECTIONS._value.sum(),
+        'request_count': sum(sample.value for sample in REQUEST_COUNT.collect()[0].samples),
+        'request_duration': sum(sample.value for sample in REQUEST_DURATION.collect()[0].samples),
+        'product_operations': sum(sample.value for sample in PRODUCT_OPERATIONS.collect()[0].samples),
+        'scraper_operations': sum(sample.value for sample in SCRAPER_OPERATIONS.collect()[0].samples),
+        'active_connections': sum(sample.value for sample in ACTIVE_CONNECTIONS.collect()[0].samples),
     }

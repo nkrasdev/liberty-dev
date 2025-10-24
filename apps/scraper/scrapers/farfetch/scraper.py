@@ -1,7 +1,8 @@
 """Скрапер для товаров Farfetch."""
 
-from services.scraper_core import BaseScraper, get_logger
-from services.scraper_core.utils import extract_json_ld_from_html, validate_product_data
+from apps.scraper.scraper_core.base_scraper import BaseScraper
+from apps.scraper.scraper_core.logger import get_logger
+from apps.scraper.scraper_core.utils import extract_json_ld_from_html, validate_product_data
 
 from .config import FarfetchConfig
 from .domain import FarfetchProduct

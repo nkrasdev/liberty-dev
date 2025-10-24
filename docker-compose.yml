@@ -77,7 +77,8 @@ services:
   api:
     build:
       context: .
-      dockerfile: Dockerfile.api
+      dockerfile: Dockerfile
+      target: api
     container_name: aggregator-api
     environment:
       DATABASE_URL: postgresql://postgres:postgres@postgres:5432/aggregator
@@ -114,7 +115,8 @@ services:
   saver:
     build:
       context: .
-      dockerfile: Dockerfile.saver
+      dockerfile: Dockerfile
+      target: saver
     container_name: aggregator-saver
     environment:
       DATABASE_URL: postgresql://postgres:postgres@postgres:5432/aggregator

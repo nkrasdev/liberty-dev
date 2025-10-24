@@ -1,8 +1,8 @@
 from typing import List
 
-from services.scraper_core.logger import get_logger
-from services.scraper_core.models import BaseImage, BaseOffer
-from services.scraper_core.utils import clean_text, validate_price
+from apps.scraper.scraper_core.logger import get_logger
+from apps.scraper.scraper_core.models import BaseImage, BaseOffer
+from apps.scraper.scraper_core.utils import clean_text, validate_price
 
 from .domain import FarfetchProduct, ProductVariant
 

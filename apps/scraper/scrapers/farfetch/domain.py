@@ -1,6 +1,6 @@
 from pydantic import ConfigDict, Field
 
-from services.scraper_core.models import BaseProduct, BaseVariant
+from apps.scraper.scraper_core.models import BaseProduct, BaseVariant
 
 
 class ProductVariant(BaseVariant):

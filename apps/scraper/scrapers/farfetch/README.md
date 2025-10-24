@@ -18,7 +18,7 @@ farfetch/
 ## Использование
 
 ```python
-from services.scrapers.farfetch import FarfetchScraper, FarfetchConfig
+from apps.scraper.scrapers.farfetch import FarfetchScraper, FarfetchConfig
 
 # Создание конфигурации
 config = FarfetchConfig(

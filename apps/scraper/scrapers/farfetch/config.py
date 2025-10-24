@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from typing import List
 
-from services.scraper_core.config import BaseScraperConfig
+from apps.scraper.scraper_core.config import BaseScraperConfig
 
 
 @dataclass

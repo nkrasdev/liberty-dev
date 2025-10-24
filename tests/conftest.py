@@ -13,6 +13,9 @@ from pathlib import Path
 from apps.api.main import app
 from apps.api.common.db import get_db, Base
 from shared.utils.logging import setup_logging
+from apps.scraper.scrapers.farfetch.config import FarfetchConfig
+from apps.scraper.scrapers.farfetch.scraper import FarfetchScraper
+from apps.scraper.scraper_core.models import BaseImage, BaseOffer
 
 # Setup logging for tests
 setup_logging(log_level="INFO", log_format="json")

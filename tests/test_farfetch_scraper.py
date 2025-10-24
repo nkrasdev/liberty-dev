@@ -5,10 +5,10 @@ from unittest.mock import patch, AsyncMock
 
 from pytest_cases import case, parametrize
 
-from services.scraper_core import save_products, load_products
-from services.scrapers.farfetch.domain import FarfetchProduct
-from services.scrapers.farfetch.scraper import FarfetchScraper
-from services.scraper_core.utils import extract_json_ld_from_html, validate_product_data
+from apps.scraper.scraper_core.storage import save_products, load_products
+from apps.scraper.scrapers.farfetch.domain import FarfetchProduct
+from apps.scraper.scrapers.farfetch.scraper import FarfetchScraper
+from apps.scraper.scraper_core.utils import extract_json_ld_from_html, validate_product_data
 
 
 @case(tags=["basic"])
@@ -135,7 +135,7 @@ class TestFarfetchScraper:
         with patch.object(scraper, 'http_client', new_callable=AsyncMock) as mock_client:
             mock_client.get.return_value = "<html>Test content</html>"
             with patch(
-                "services.scrapers.farfetch.scraper.extract_json_ld_from_html"
+                "apps.scraper.scrapers.farfetch.scraper.extract_json_ld_from_html"
             ) as mock_extract:
                 mock_extract.return_value = case_data["json_ld"]
 
@@ -172,7 +172,7 @@ class TestIntegration:
             mock_client.get.return_value = "<html>Test content</html>"
 
             with patch(
-                "services.scrapers.farfetch.scraper.extract_json_ld_from_html",
+                "apps.scraper.scrapers.farfetch.scraper.extract_json_ld_from_html",
                 return_value=case_data["json_ld"],
             ):
                 result = await scraper.scrape_product(case_data["url"])
