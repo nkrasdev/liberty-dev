@@ -1,0 +1,173 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python 3.12
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.12'
+    
+    - name: Install uv
+      uses: astral-sh/setup-uv@v2
+      with:
+        version: "latest"
+    
+    - name: Install dependencies
+      run: uv sync --dev
+    
+    - name: Run ruff check
+      run: uv run ruff check .
+    
+    - name: Run ruff format check
+      run: uv run ruff format --check .
+
+  tests:
+    name: Tests
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: aggregator_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+      
+      redis:
+        image: redis:7
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+      
+      rabbitmq:
+        image: rabbitmq:3-management
+        env:
+          RABBITMQ_DEFAULT_USER: guest
+          RABBITMQ_DEFAULT_PASS: guest
+        options: >-
+          --health-cmd "rabbitmq-diagnostics ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5672:5672
+      
+      minio:
+        image: minio/minio:latest
+        env:
+          MINIO_ROOT_USER: minioadmin
+          MINIO_ROOT_PASSWORD: minioadmin
+        options: >-
+          --health-cmd "curl -f http://localhost:9000/minio/health/live"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 9000:9000
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python 3.12
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.12'
+    
+    - name: Install uv
+      uses: astral-sh/setup-uv@v2
+      with:
+        version: "latest"
+    
+    - name: Install dependencies
+      run: uv sync --dev
+    
+    - name: Set up test environment
+      run: |
+        export DATABASE_URL=postgresql://postgres:postgres@localhost:5432/aggregator_test
+        export REDIS_URL=redis://localhost:6379/0
+        export RABBITMQ_URL=amqp://guest:guest@localhost:5672/
+        export MINIO_ENDPOINT=localhost:9000
+        export MINIO_ACCESS_KEY=minioadmin
+        export MINIO_SECRET_KEY=minioadmin
+        export MINIO_BUCKET=aggregator-data
+        export MINIO_SECURE=false
+        export LOG_LEVEL=INFO
+        export LOG_FORMAT=json
+    
+    - name: Run database migrations
+      run: |
+        export DATABASE_URL=postgresql://postgres:postgres@localhost:5432/aggregator_test
+        uv run alembic upgrade head
+    
+    - name: Run tests
+      run: |
+        export DATABASE_URL=postgresql://postgres:postgres@localhost:5432/aggregator_test
+        export REDIS_URL=redis://localhost:6379/0
+        export RABBITMQ_URL=amqp://guest:guest@localhost:5672/
+        export MINIO_ENDPOINT=localhost:9000
+        export MINIO_ACCESS_KEY=minioadmin
+        export MINIO_SECRET_KEY=minioadmin
+        export MINIO_BUCKET=aggregator-data
+        export MINIO_SECURE=false
+        export LOG_LEVEL=INFO
+        export LOG_FORMAT=json
+        uv run pytest tests/ -v --cov=. --cov-report=xml
+    
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage.xml
+        flags: unittests
+        name: codecov-umbrella
+
+  docker-build:
+    name: Docker Build
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+    
+    - name: Build API image
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        file: ./Dockerfile.api
+        push: false
+        tags: aggregator-api:latest
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+    
+    - name: Build Saver image
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        file: ./Dockerfile.saver
+        push: false
+        tags: aggregator-saver:latest
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
